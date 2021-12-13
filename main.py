@@ -68,24 +68,68 @@ for i in df.index:
 
 print(df)
 
-############################################
-############################################
-petList = []
+# Rename so that it can go into sql database table
+df.rename(columns={'housing_median_age': 'median_age'}, inplace = True)
+df['zip_code'] = pd.to_numeric(df['zip_code'])
+df['median_age'] = pd.to_numeric(df['median_age'])
+df['total_rooms'] = pd.to_numeric(df['total_rooms'])
+df['total_bedrooms'] = pd.to_numeric(df['total_bedrooms'])
+df['population'] = pd.to_numeric(df['population'])
+df['median_house_value'] = pd.to_numeric(df['median_house_value'])
+df['households'] = pd.to_numeric(df['households'])
+df['median_income'] = pd.to_numeric(df['median_income'])
 
-# Function that accesses sql pets data and inputs data into Pets class
+
+print(df.dtypes)
+for i in range(0,94):
+    df.guid[i] = df.guid[i].replace('-', '')
+
+# Reorder columns
+df = df[['guid', 'zip_code', 'city', 'state', 'county', 'median_age', 'total_rooms', 'total_bedrooms', 'population',
+         'households', 'median_income', 'median_house_value']]
+print(df)
+############################################
+############################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# for i, row in df.iterrows():
+#         sqlSelect = """
+#         sql = INSERT INTO housing (guid, zip_code, city, state, county, median_age, total_rooms, total_bedrooms, population,
+#   #households, median_income, median_house_value) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+#         """
+#sql = INSERT INTO housing (guid, zip_code, city, state, county, median_age, total_rooms, total_bedrooms, population,
+  #households, median_income, median_house_value) VALUES ("lkjlkj", "5", "3", "2", "1", "8", "5", "6", "7", "8", "9", "0")
 def pushData():
     # sql statement
     for i, row in df.iterrows():
         sqlSelect = """
-            sql = INSERT INTO housing_project.housing VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            sql = INSERT INTO housing_project.housing (guid, zip_code, city, state, county, median_age, total_rooms, total_bedrooms, population,
+            households, median_income, median_house_value) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             """
-    #sql = INSERT INTO housing (guid, zip_code, city, state, county, median_age, total_rooms, total_bedrooms, population,
-      #households, median_income, median_house_value) VALUES ("lkjlkj", "5", "3", "2", "1", "8", "5", "6", "7", "8", "9", "0")
+    # sql = INSERT INTO housing (guid, zip_code, city, state, county, median_age, total_rooms, total_bedrooms, population,
+    # households, median_income, median_house_value) VALUES ("lkjlkj", "5", "3", "2", "1", "8", "5", "6", "7", "8", "9", "0")
 
     # Execute select, this is just something I have found on the internet on line 86.
-    cursor.execute(sqlSelect, tuple(row))
-    print(sqlSelect)
-
+        try:
+            tempVAr = tuple(row)
+            #cursor.execute(sqlSelect, tempVAr)
+            #print(sqlSelect)
+            print(tempVAr)
+        except Exception as e:
+            print(f"{e}")
 # Connect to the database
 try:
     print("About to connect")
@@ -98,7 +142,7 @@ try:
     print("Connected")
 # If there is an exception
 except Exception as e:
-    print(f"Sorry, connection was not made to sql database.  Check mysql information is set correctly. {e}")
+    print(f"1Sorry, connection was not made to sql database.  Check mysql information is set correctly. {e}")
     print()
     exit()
 
@@ -111,7 +155,7 @@ try:
 
 # If there is an exception
 except Exception as e:
-    print(f"Sorry, but the connection was not made. Check mysql information.")
+    print(f"2Sorry, but the connection was not made. Check mysql information. {e}")
     print()
 
 # Close connection
@@ -119,6 +163,8 @@ finally:
     myConnection.close()
     print("Connection closed.")
     print("\n")
+
+
 
 
 
