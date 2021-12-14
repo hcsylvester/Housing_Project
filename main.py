@@ -148,11 +148,16 @@ print(f"Cleaning ZIP File data\n{len(df)} records imported into the database")
 print("Import completed\n")
 print("Beginning validation\n")
 
-zip = input("Zip Code: ")
+while True:
+    zip = input("Zip Code: ")
+    if zip in df.zip_code == True:
+         break
+    else:
+        print("That is not a valid zip code!")
 int(zip)
 def getZip(zip):
         sqlSelect = """ 
-            select median_income from housing where zip_code = zip;
+            select median_income from housing where zip_code = %s;
             """
     # Execute select
         try:
@@ -200,4 +205,5 @@ finally:
 
 
 print("Program exiting")
+
 
