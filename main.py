@@ -92,42 +92,20 @@ print(df)
 ############################################
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-#
-# for i, row in df.iterrows():
-#         sqlSelect = """
-#         sql = INSERT INTO housing (guid, zip_code, city, state, county, median_age, total_rooms, total_bedrooms, population,
-#   #households, median_income, median_house_value) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-#         """
-#sql = INSERT INTO housing (guid, zip_code, city, state, county, median_age, total_rooms, total_bedrooms, population,
-  #households, median_income, median_house_value) VALUES ("lkjlkj", "5", "3", "2", "1", "8", "5", "6", "7", "8", "9", "0")
 def pushData():
     # sql statement
     for i, row in df.iterrows():
-        sqlSelect = """
-            sql = INSERT INTO housing_project.housing (guid, zip_code, city, state, county, median_age, total_rooms, total_bedrooms, population,
-            households, median_income, median_house_value) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+        sqlSelect = """ 
+            INSERT INTO housing (guid, zip_code, city, state, county, median_age, total_rooms, total_bedrooms, 
+            population, households, median_income, median_house_value) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             """
-    # sql = INSERT INTO housing (guid, zip_code, city, state, county, median_age, total_rooms, total_bedrooms, population,
-    # households, median_income, median_house_value) VALUES ("lkjlkj", "5", "3", "2", "1", "8", "5", "6", "7", "8", "9", "0")
-
-    # Execute select, this is just something I have found on the internet on line 86.
+    # Execute select
         try:
-            tempVAr = tuple(row)
-            #cursor.execute(sqlSelect, tempVAr)
+            tempVar = tuple(row)
+            cursor.execute(sqlSelect, tempVar)
             #print(sqlSelect)
-            print(tempVAr)
+
         except Exception as e:
             print(f"{e}")
 # Connect to the database
@@ -152,8 +130,61 @@ try:
 
         # Runs the function to access sql with specific sql commands and gives the Pets data
         pushData()
+        myConnection.commit()
+# If there is an exceptionmysql> source databaseCreationScript.sql
+except Exception as e:
+    print(f"2Sorry, but the connection was not made. Check mysql information. {e}")
+    print()
 
+# Close connection
+finally:
+    myConnection.close()
+    print("Connection closed.")
+    print("\n")
+
+print(f"Beginning import\nCleaning Housing File data\n{len(df)} records imported into the database")
+print(f"Cleaning Income File data\n{len(df)} records imported into the database")
+print(f"Cleaning ZIP File data\n{len(df)} records imported into the database")
+print("Import completed\n")
+print("Beginning validation\n")
+
+zip = input("Zip Code: ")
+int(zip)
+def getZip(zip):
+        sqlSelect = """ 
+            select median_income from housing where zip_code = zip;
+            """
+    # Execute select
+        try:
+            cursor.execute(sqlSelect, zip)
+            first_row = cursor.fetchone()
+            print(first_row)
+        except Exception as e:
+            print(f"{e}")
+# Connect to the database
+try:
+    print("About to connect")
+    myConnection = pymysql.connect(host=hostname,
+                                   user=username,
+                                   password=password,
+                                   db=database,
+                                   charset='utf8mb4',
+                                   cursorclass=pymysql.cursors.DictCursor)
+    print("Connected")
 # If there is an exception
+except Exception as e:
+    print(f"1Sorry, connection was not made to sql database.  Check mysql information is set correctly. {e}")
+    print()
+    exit()
+
+# Once connected, we execute a query
+try:
+    with myConnection.cursor() as cursor:
+
+        # Runs the function to access sql with specific sql commands and gives the Pets data
+        getZip(zip)
+        myConnection.commit()
+# If there is an exceptionmysql> source databaseCreationScript.sql
 except Exception as e:
     print(f"2Sorry, but the connection was not made. Check mysql information. {e}")
     print()
@@ -166,17 +197,6 @@ finally:
 
 
 
-
-
-
-
-print(f"Beginning import\nCleaning Housing File data\n{len(df)} records imported into the database")
-print(f"Cleaning Income File data\n{len(df)} records imported into the database")
-print(f"Cleaning ZIP File data\n{len(df)} records imported into the database")
-print("Import completed\n")
-print("Beginning validation\n")
-
-zip = input(print("ZIP Code: "))
 
 
 print("Program exiting")
