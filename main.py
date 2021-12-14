@@ -10,7 +10,6 @@ import pymysql.cursors
 
 # Import csv files from file
 from files import *
-print(incomeFile)
 
 # read in all 3 files into different variables
 house = pd.read_csv(housingFile)
@@ -20,21 +19,21 @@ cityCounty = pd.read_csv(zipFile)
 # Make it where I can see all columns
 pd.set_option("display.max.columns", None)
 
-print(house)
-print(income)
-print(cityCounty)
+# print(house)
+# print(income)
+# print(cityCounty)
 
 # Merge two datasets together based on unique identifier
 j = pd.merge(house, income)
 
 # Merge the previous and last dataset together
 fullData = pd.merge(j, cityCounty)
-print(fullData)
+#print(fullData)
 
 # Remove all rows that contained four letters in guid
 j = fullData[fullData['guid'].map(len) != 4]
 
-print(j)
+#print(j)
 
 # This will go through each column and check to see if corrupted and change value
 for i in j.index:
@@ -46,7 +45,7 @@ for i in j.index:
     j.at[i, 'median_house_value'] = random.randint(100000, 250000) if len(j.at[i, 'median_house_value']) == 4 else j.at[i, 'median_house_value']
     j.at[i, 'median_income'] = random.randint(100000, 750000) if len(j.at[i, 'median_income']) == 4 else j.at[i, 'median_income']
 
-print(j)
+#print(j)
 
 # Turn back into a dataframe for Pandas
 df = pd.DataFrame(data=j)
@@ -59,14 +58,14 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 # Since sort need to fix index, so we reset
 df = df.reset_index(drop=True)
-print(df)
+#print(df)
 
 # Goes through each value and finds the state that was next to it to grab the first number from the previous zip code
 # Will go ahead and tell you this will not work if your first value is missing the zip code, but will for all other cases
 for i in df.index:
     df.at[i, 'zip_code'] = df.at[i-1, 'zip_code'][-5] + "0000" if len(df.at[i, 'zip_code']) == 4 else df.at[i, 'zip_code']
 
-print(df)
+#print(df)
 
 # Rename so that it can go into sql database table
 df.rename(columns={'housing_median_age': 'median_age'}, inplace = True)
@@ -79,18 +78,15 @@ df['median_house_value'] = pd.to_numeric(df['median_house_value'])
 df['households'] = pd.to_numeric(df['households'])
 df['median_income'] = pd.to_numeric(df['median_income'])
 
+#print(df.dtypes)
 
-print(df.dtypes)
-for i in range(0,94):
+for i in range(0,len(df.index)):
     df.guid[i] = df.guid[i].replace('-', '')
 
 # Reorder columns
 df = df[['guid', 'zip_code', 'city', 'state', 'county', 'median_age', 'total_rooms', 'total_bedrooms', 'population',
          'households', 'median_income', 'median_house_value']]
-print(df)
-############################################
-############################################
-
+#print(df)
 
 def pushData():
     # sql statement
@@ -110,14 +106,14 @@ def pushData():
             print(f"{e}")
 # Connect to the database
 try:
-    print("About to connect")
+    #print("About to connect")
     myConnection = pymysql.connect(host=hostname,
                                    user=username,
                                    password=password,
                                    db=database,
                                    charset='utf8mb4',
                                    cursorclass=pymysql.cursors.DictCursor)
-    print("Connected")
+    #print("Connected")
 # If there is an exception
 except Exception as e:
     print(f"1Sorry, connection was not made to sql database.  Check mysql information is set correctly. {e}")
@@ -139,7 +135,7 @@ except Exception as e:
 # Close connection
 finally:
     myConnection.close()
-    print("Connection closed.")
+    #print("Connection closed.")
     print("\n")
 
 print(f"Beginning import\nCleaning Housing File data\n{len(df)} records imported into the database")
@@ -148,13 +144,68 @@ print(f"Cleaning ZIP File data\n{len(df)} records imported into the database")
 print("Import completed\n")
 print("Beginning validation\n")
 
+
+# while True:
+rooms = input("Total Rooms: ")
+    # if str(rooms) in str(df.total_rooms):
+    #      break
+    # else:
+    #     print("That is not a valid number! Please try again! ")
+
+def getRooms(rooms):
+        sqlSelect = """ 
+            select sum(total_bedrooms) from housing where (total_rooms) > %s;
+            """
+    # Execute select
+        try:
+            cursor.execute(sqlSelect, rooms)
+            first_row = cursor.fetchone()
+            print(f"For locations with more than {rooms} rooms, there are a total of {first_row} bedrooms.")
+        except Exception as e:
+            print(f"{e}")
+# Connect to the database
+try:
+    #print("About to connect")
+    myConnection = pymysql.connect(host=hostname,
+                                   user=username,
+                                   password=password,
+                                   db=database,
+                                   charset='utf8mb4',
+                                   cursorclass=pymysql.cursors.DictCursor)
+    #print("Connected")
+# If there is an exception
+except Exception as e:
+    print(f"1Sorry, connection was not made to sql database.  Check mysql information is set correctly. {e}.")
+    print()
+    exit()
+
+# Once connected, we execute a query
+try:
+    with myConnection.cursor() as cursor:
+
+        # Runs the function to access sql with specific sql commands and gives the Pets data
+        getRooms(rooms)
+        myConnection.commit()
+# If there is an exceptionmysql> source databaseCreationScript.sql
+except Exception as e:
+    print(f"2Sorry, but the connection was not made. Check mysql information. {e}")
+    print()
+
+# Close connection
+finally:
+    myConnection.close()
+    #print("Connection closed.")
+    print("\n")
+
+
+
 while True:
     zip = input("Zip Code: ")
-    if zip in df.zip_code == True:
+    if str(zip) in str(df.zip_code):
          break
     else:
-        print("That is not a valid zip code!")
-int(zip)
+        print("That is not a valid zip code! Please try again! ")
+
 def getZip(zip):
         sqlSelect = """ 
             select median_income from housing where zip_code = %s;
@@ -163,19 +214,19 @@ def getZip(zip):
         try:
             cursor.execute(sqlSelect, zip)
             first_row = cursor.fetchone()
-            print(first_row)
+            print(f"The median household income for ZIP code {zip} is {first_row}.")
         except Exception as e:
             print(f"{e}")
 # Connect to the database
 try:
-    print("About to connect")
+    #print("About to connect")
     myConnection = pymysql.connect(host=hostname,
                                    user=username,
                                    password=password,
                                    db=database,
                                    charset='utf8mb4',
                                    cursorclass=pymysql.cursors.DictCursor)
-    print("Connected")
+    #print("Connected")
 # If there is an exception
 except Exception as e:
     print(f"1Sorry, connection was not made to sql database.  Check mysql information is set correctly. {e}")
@@ -197,13 +248,12 @@ except Exception as e:
 # Close connection
 finally:
     myConnection.close()
-    print("Connection closed.")
+    #print("Connection closed.")
     print("\n")
 
+print("Program exiting.")
 
 
 
-
-print("Program exiting")
 
 
