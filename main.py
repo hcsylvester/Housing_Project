@@ -1,6 +1,7 @@
 # Hunter C. Sylvester
 # Final ProhalfDataect: Import data, clean data, and upload data into sql database.  
 # Then find total bedrooms based on an input of total rooms, and find median income based on zip code.  
+# This will work if you run the sql database code provided each time, before running this.  Please look at comment on submission.  
 
 # Import modules needed for program
 import random
