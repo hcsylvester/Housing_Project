@@ -1,5 +1,6 @@
 # Hunter C. Sylvester
-# Final ProhalfDataect: Import data, clean data, and upload data into sql database
+# Final ProhalfDataect: Import data, clean data, and upload data into sql database.  
+# Then find total bedrooms based on an input of total rooms, and find median income based on zip code.  
 
 # Import modules needed for program
 import random
