@@ -1,7 +1,5 @@
 # Hunter C. Sylvester
-# Final ProhalfDataect: Import data, clean data, and upload data into sql database.  
-# Then find total bedrooms based on an input of total rooms, and find median income based on zip code.  
-# This will work if you run the sql database code provided each time, before running this.  Please look at comment on submission.  
+# Final ProhalfDataect: Import data, clean data, and upload data into sql database
 
 # Import modules needed for program
 import random
@@ -205,7 +203,9 @@ def getZip(zip):
 
         cursor.execute(sqlSelect, zip)
         first_row = cursor.fetchone()
-        print(f"The median household income for ZIP code {zip} is {first_row['median_income']}.")
+        placeHolder = first_row['median_income']
+        medianIncome = "{:,}".format(placeHolder)
+        print(f"The median household income for ZIP code {zip} is {medianIncome}.")
 
 # Connect to the database
 try:
